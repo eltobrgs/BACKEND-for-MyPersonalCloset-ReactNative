@@ -2,7 +2,7 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
-
+import { ObjectId } from 'mongodb';
 const router = express.Router();
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -299,7 +299,6 @@ router.get("/looks", async (req, res) => {
     }
 });
 
-
 // Endpoint para deletar um look
 router.delete("/looks/:id", async (req, res) => {
     try {
@@ -314,9 +313,12 @@ router.delete("/looks/:id", async (req, res) => {
       const token = authHeader.split(" ")[1];
       const decoded = jwt.verify(token, JWT_SECRET);
   
+      // Converter o id para ObjectId
+      const lookId = new ObjectId(id); // Convertendo a string para ObjectId
+  
       // Buscar o look no banco de dados
       const look = await prisma.look.findUnique({
-        where: { id: Number(id) },
+        where: { id: lookId },
       });
   
       if (!look) {
@@ -330,7 +332,7 @@ router.delete("/looks/:id", async (req, res) => {
   
       // Deletar o look
       await prisma.look.delete({
-        where: { id: Number(id) },
+        where: { id: lookId },
       });
   
       res.status(200).json({ message: "Look excluído com sucesso" });
