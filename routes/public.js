@@ -299,4 +299,46 @@ router.get("/looks", async (req, res) => {
     }
 });
 
+
+// Endpoint para deletar um look
+router.delete("/looks/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+  
+      // Verificar token de autenticação
+      const authHeader = req.headers.authorization;
+      if (!authHeader) {
+        return res.status(401).json({ error: "Token não fornecido" });
+      }
+  
+      const token = authHeader.split(" ")[1];
+      const decoded = jwt.verify(token, JWT_SECRET);
+  
+      // Buscar o look no banco de dados
+      const look = await prisma.look.findUnique({
+        where: { id: Number(id) },
+      });
+  
+      if (!look) {
+        return res.status(404).json({ error: "Look não encontrado" });
+      }
+  
+      // Verificar se o look pertence ao usuário
+      if (look.userId !== decoded.userId) {
+        return res.status(403).json({ error: "Você não tem permissão para excluir este look" });
+      }
+  
+      // Deletar o look
+      await prisma.look.delete({
+        where: { id: Number(id) },
+      });
+  
+      res.status(200).json({ message: "Look excluído com sucesso" });
+    } catch (err) {
+      console.error("Erro ao excluir look:", err);
+      res.status(500).json({ error: "Erro ao excluir look" });
+    }
+  });
+
+  
 export default router;
