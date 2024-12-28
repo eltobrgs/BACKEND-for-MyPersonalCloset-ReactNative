@@ -222,4 +222,81 @@ router.get("/preferences", async (req, res) => {
     }
 });
 
+// Endpoint para cadastrar um novo look
+router.post("/looks", async (req, res) => {
+    try {
+        const { title, description, photo } = req.body;
+        console.log("Dados do look recebidos:", req.body);
+
+        // Verificar token de autenticação
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            return res.status(401).json({ error: "Token não fornecido" });
+        }
+
+        const token = authHeader.split(" ")[1];
+        const decoded = jwt.verify(token, JWT_SECRET);
+
+        // Buscar usuário pelo ID
+        const user = await prisma.user.findUnique({
+            where: { id: decoded.userId },
+        });
+
+        if (!user) {
+            return res.status(404).json({ error: "Usuário não encontrado" });
+        }
+
+        // Criar um novo look
+        const newLook = await prisma.look.create({
+            data: {
+                title,
+                description,
+                photo,
+                userId: user.id, // Associar o look ao usuário
+            },
+        });
+
+        res.status(201).json({
+            message: "Look cadastrado com sucesso",
+            look: newLook,
+        });
+    } catch (err) {
+        console.error("Erro ao cadastrar look:", err);
+        res.status(500).json({ error: "Erro ao cadastrar look" });
+    }
+});
+
+// Endpoint para listar todos os looks do usuário
+router.get("/looks", async (req, res) => {
+    try {
+        // Verificar token de autenticação
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            return res.status(401).json({ error: "Token não fornecido" });
+        }
+
+        const token = authHeader.split(" ")[1];
+        const decoded = jwt.verify(token, JWT_SECRET);
+
+        // Buscar usuário pelo ID
+        const user = await prisma.user.findUnique({
+            where: { id: decoded.userId },
+        });
+
+        if (!user) {
+            return res.status(404).json({ error: "Usuário não encontrado" });
+        }
+
+        // Buscar todos os looks do usuário
+        const looks = await prisma.look.findMany({
+            where: { userId: user.id },
+        });
+
+        res.status(200).json(looks);
+    } catch (err) {
+        console.error("Erro ao listar looks:", err);
+        res.status(500).json({ error: "Erro ao listar looks" });
+    }
+});
+
 export default router;
