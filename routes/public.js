@@ -311,7 +311,7 @@ router.delete("/looks/:id", auth, async (req, res) => {
 
         // Verifique se o look existe e pertence ao usuário autenticado
         const look = await prisma.look.findUnique({
-            where: { id: parseInt(id) },
+            where: { id: id }, // ID é string
         });
 
         if (!look) {
@@ -324,7 +324,7 @@ router.delete("/looks/:id", auth, async (req, res) => {
 
         // Deletar o look
         await prisma.look.delete({
-            where: { id: parseInt(id) },
+            where: { id: id }, // ID é string
         });
 
         res.status(200).json({ message: "Look deletado com sucesso." });
@@ -333,6 +333,5 @@ router.delete("/looks/:id", auth, async (req, res) => {
         res.status(500).json({ error: "Erro interno do servidor." });
     }
 });
-  
 
 export default router;
