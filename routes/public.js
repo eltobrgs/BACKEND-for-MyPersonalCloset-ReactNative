@@ -297,6 +297,50 @@ router.get("/looks", async (req, res) => {
         console.error("Erro ao listar looks:", err);
         res.status(500).json({ error: "Erro ao listar looks" });
     }
+
+    router.delete("/looks/:id", async (req, res) => {
+        try {
+            const { id } = req.params;
+            console.log("Tentativa de exclusão do look com ID:", id);
+
+            // Verificar token de autenticação
+            const authHeader = req.headers.authorization;
+            if (!authHeader) {
+                return res.status(401).json({ error: "Token não fornecido" });
+            }
+
+            const token = authHeader.split(" ")[1];
+            const decoded = jwt.verify(token, JWT_SECRET);
+
+            // Buscar usuário pelo ID
+            const user = await prisma.user.findUnique({
+                where: { id: decoded.userId },
+            });
+
+            if (!user) {
+                return res.status(404).json({ error: "Usuário não encontrado" });
+            }
+
+            // Verificar se o look pertence ao usuário
+            const look = await prisma.look.findUnique({
+                where: { id: parseInt(id) },
+            });
+
+            if (!look || look.userId !== user.id) {
+                return res.status(404).json({ error: "Look não encontrado ou não pertence ao usuário" });
+            }
+
+            // Deletar o look
+            await prisma.look.delete({
+                where: { id: parseInt(id) },
+            });
+
+            res.status(200).json({ message: "Look deletado com sucesso" });
+        } catch (err) {
+            console.error("Erro ao deletar look:", err);
+            res.status(500).json({ error: "Erro ao deletar look" });
+        }
+    });
 });
 
 export default router;
