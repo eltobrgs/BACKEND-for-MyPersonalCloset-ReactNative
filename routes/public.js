@@ -115,12 +115,11 @@ router.get("/me", async (req, res) => {
     }
 });
 
-
 // Rota para salvar preferências
 router.post("/preferences", async (req, res) => {
     try {
         const { fashionTarget, birthDate, address, theme, gender } = req.body;
-        
+
         // Verificar o token de autenticação
         const authHeader = req.headers.authorization;
         if (!authHeader) {
@@ -300,5 +299,3 @@ router.get("/looks", async (req, res) => {
 });
 
 export default router;
-
-
