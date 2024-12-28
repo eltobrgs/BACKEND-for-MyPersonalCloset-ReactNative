@@ -115,4 +115,74 @@ router.get("/me", async (req, res) => {
     }
 });
 
+
+// Rota para salvar preferências
+router.post("/preferences", async (req, res) => {
+    try {
+        const { fashionTarget, birthDate, address, theme, gender } = req.body;
+        
+        // Verificar o token de autenticação
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            return res.status(401).json({ error: "Token não fornecido" });
+        }
+
+        const token = authHeader.split(" ")[1];
+        const decoded = jwt.verify(token, JWT_SECRET);
+
+        // Buscar usuário pelo ID decodificado no token
+        const user = await prisma.user.findUnique({
+            where: { id: decoded.userId },
+        });
+
+        if (!user) {
+            return res.status(404).json({ error: "Usuário não encontrado" });
+        }
+
+        // Verificar se o usuário já tem preferências registradas
+        const existingPreferences = await prisma.preferences.findUnique({
+            where: { userId: user.id },
+        });
+
+        if (existingPreferences) {
+            // Se já existirem preferências, atualizar
+            const updatedPreferences = await prisma.preferences.update({
+                where: { userId: user.id },
+                data: {
+                    fashionTarget,
+                    birthDate,
+                    address,
+                    theme,
+                    gender,
+                },
+            });
+            return res.status(200).json({
+                message: "Preferências atualizadas com sucesso",
+                preferences: updatedPreferences,
+            });
+        }
+
+        // Se não existir, criar novas preferências
+        const newPreferences = await prisma.preferences.create({
+            data: {
+                fashionTarget,
+                birthDate,
+                address,
+                theme,
+                gender,
+                userId: user.id, // Associar as preferências ao usuário
+            },
+        });
+
+        res.status(201).json({
+            message: "Preferências salvas com sucesso",
+            preferences: newPreferences,
+        });
+    } catch (err) {
+        console.error("Erro ao salvar preferências:", err);
+        res.status(500).json({ error: "Erro ao salvar preferências" });
+    }
+});
+
+
 export default router;

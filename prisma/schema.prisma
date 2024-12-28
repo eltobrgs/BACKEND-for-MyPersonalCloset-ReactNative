@@ -19,5 +19,17 @@ model User {
   email   String   @unique
   name    String?
   password String 
+
+  Preferences Preferences[]
 }
 
+model Preferences {
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  fashionTarget String
+  birthDate     String
+  address       String
+  theme         String
+  gender        String
+  userId        String @unique @db.ObjectId
+  user          User   @relation(fields: [userId], references: [id])
+}
