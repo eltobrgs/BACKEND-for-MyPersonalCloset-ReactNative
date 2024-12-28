@@ -6,7 +6,7 @@ import { PrismaClient } from '@prisma/client';
 const router = express.Router();
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET;
-import auth from '../middlewares/auth';
+import auth from './middlewares/auth.js';
 // Endpoint de Cadastro
 router.post("/cadastro", async (req, res) => {
     try {
