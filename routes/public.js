@@ -299,40 +299,40 @@ router.get("/looks", async (req, res) => {
     }
 });
 
-router.delete("/looks/:id", async (req, res) => {
+// Endpoint para deletar um look
+router.delete("/looks/:id", auth, async (req, res) => {
     try {
-      const { id } = req.params;
-  
-      if (!id) {
-        return res.status(400).json({ error: "ID do look não fornecido." });
-      }
-  
-      const userId = req.user.id; // Certifique-se de que a autenticação está funcionando e fornece o `user.id`
-  
-      // Verifique se o look existe e pertence ao usuário
-      const look = await prisma.look.findUnique({
-        where: { id },
-      });
-  
-      if (!look) {
-        return res.status(404).json({ error: "Look não encontrado." });
-      }
-  
-      if (look.userId !== userId) {
-        return res.status(403).json({ error: "Você não tem permissão para deletar este look." });
-      }
-  
-      // Delete o look
-      await prisma.look.delete({
-        where: { id },
-      });
-  
-      res.status(200).json({ message: "Look deletado com sucesso." });
+        const { id } = req.params; // ID do look a ser deletado
+        const userId = req.userID; // ID do usuário autenticado
+
+        if (!id) {
+            return res.status(400).json({ error: "ID do look não fornecido." });
+        }
+
+        // Verifique se o look existe e pertence ao usuário autenticado
+        const look = await prisma.look.findUnique({
+            where: { id: parseInt(id) },
+        });
+
+        if (!look) {
+            return res.status(404).json({ error: "Look não encontrado." });
+        }
+
+        if (look.userId !== userId) {
+            return res.status(403).json({ error: "Você não tem permissão para deletar este look." });
+        }
+
+        // Deletar o look
+        await prisma.look.delete({
+            where: { id: parseInt(id) },
+        });
+
+        res.status(200).json({ message: "Look deletado com sucesso." });
     } catch (error) {
-      console.error("Erro ao deletar look:", error);
-      res.status(500).json({ error: "Erro interno do servidor." });
+        console.error("Erro ao deletar look:", error);
+        res.status(500).json({ error: "Erro interno do servidor." });
     }
-  });
+});
   
 
 export default router;
