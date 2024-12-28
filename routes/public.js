@@ -299,7 +299,7 @@ router.get("/looks", async (req, res) => {
     }
 });
 
-app.delete("/looks/:id", async (req, res) => {
+router.delete("/looks/:id", async (req, res) => {
     try {
       const { id } = req.params;
   
