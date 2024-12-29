@@ -151,7 +151,7 @@ router.post("/preferences", async (req, res) => {
                     fashionTarget,
                     birthDate,
                     address,
-                    theme,
+                    photo,
                     gender,
                 },
             });
@@ -167,7 +167,7 @@ router.post("/preferences", async (req, res) => {
                 fashionTarget,
                 birthDate,
                 address,
-                theme,
+                photo,
                 gender,
                 userId: user.id, // Associar as preferências ao usuário
             },
