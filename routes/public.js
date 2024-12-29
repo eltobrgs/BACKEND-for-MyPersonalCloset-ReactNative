@@ -118,7 +118,7 @@ router.get("/me", async (req, res) => {
 // Rota para salvar preferências
 router.post("/preferences", async (req, res) => {
     try {
-        const { fashionTarget, birthDate, address, theme, gender } = req.body;
+        const { fashionTarget, birthDate, address, gender } = req.body;
 
         // Verificar o token de autenticação
         const authHeader = req.headers.authorization;
@@ -151,7 +151,6 @@ router.post("/preferences", async (req, res) => {
                     fashionTarget,
                     birthDate,
                     address,
-                    theme,
                     gender,
                 },
             });
@@ -167,7 +166,6 @@ router.post("/preferences", async (req, res) => {
                 fashionTarget,
                 birthDate,
                 address,
-                theme,
                 gender,
                 userId: user.id, // Associar as preferências ao usuário
             },
